@@ -274,28 +274,28 @@ def mixed_tranformer_data_using_another(): # easier
     data = pd.DataFrame(initial_data , columns=preprocessing.get_feature_names_out())
     print(data)
     print(preprocessing.get_feature_names_out())
-#__________________________________________________________________--final_procssing_on_data
-def column_raito(X):
-    return X[:,[0]] / X[:,[1]]
+#__________________________________________________________________--final_procssing_on_data ( final level you , if you understand some things you can get start from here)
+def column_raito(X): 
+    return X[:,[0]] / X[:,[1]] # divide column  by column
 def raito(func_transformer , feature_names_in):
-    return ['raito']
-def raito_pipline():
+    return ['raito'] # rename 
+def raito_pipline(): # this func will replace any missing value then divide columns then then scaled values
     return make_pipeline(
         SimpleImputer(strategy='mean'),
         FunctionTransformer(column_raito , feature_names_out=raito),
         StandardScaler())
-log_pipe = make_pipeline(
+log_pipe = make_pipeline( # this pipeline will take log for any column will be join
     SimpleImputer(strategy='mean'),
     FunctionTransformer(np.log , feature_names_out='one-to-one'),
     StandardScaler())
 cluster_simil = ClusterSimilary(random_state=42)
 
-default_process = make_pipeline(
+default_process = make_pipeline( # this is basic pipeline any columns have no any  processing
     SimpleImputer(strategy='mean'),
     StandardScaler())
 
 
-preprocessing = ColumnTransformer(
+preprocessing = ColumnTransformer( # this the main pipeline coulmn it will do all process on all columns
     [('rooms_per_house' , raito_pipline() ,['total_rooms' , 'households']),
      ('bedrooms_raito' , raito_pipline() ,['total_bedrooms' ,'total_rooms']),
      ('people_per_house' , raito_pipline() , ['population' ,'households' ]),
@@ -307,12 +307,14 @@ preprocessing = ColumnTransformer(
 
 
 '''
+# try linear_regression
 lin_reg = make_pipeline(preprocessing , LinearRegression())
 lin_reg.fit(housing , housing_labels)
 housing_prediction = lin_reg.predict(housing)
 lin_mean_error = mean_squared_error(housing_labels , housing_prediction , squared=False)
 '''#-----
 '''
+#try decision tree
 tree_reg = make_pipeline(preprocessing , DecisionTreeRegressor())
 tree_reg.fit(housing, housing_labels)
 tree_prediction = tree_reg.predict(housing) 
@@ -343,14 +345,14 @@ param_grid = [
 param_random = [
     {'preprocessing__geo__n_clusters':randint(low=3 , high = 124), 'random_forest__max_features':randint(low=2 , high = 20)}, 
 ]
-
+# grid seacrh : this will take some hyperparm and will try all with each others and will give you best model as we see in our case this grid will do 2*3=6
 def grid_search_():
     grid_seacrh = GridSearchCV(final_pip_line , param_grid , cv=3 , scoring='neg_root_mean_squared_error' )
     grid_seacrh.fit(housing , housing_labels)
     print(grid_seacrh.best_params_)
     print(grid_seacrh.best_estimator_) 
     print(-grid_seacrh.best_score_.round(-2)) # 41700 
-def randomize_serach():
+def randomize_serach(): # the same concept like grid but this try random
     random_serach = RandomizedSearchCV(final_pip_line , param_random , n_iter=10 , cv=3 , random_state=42 , scoring='neg_root_mean_squared_error')
     random_serach.fit(housing , housing_labels)
     print(random_serach.best_params_)
